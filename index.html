@@ -19,49 +19,118 @@
             </div>
 
 
-<div class="header-auth-buttons">
-    <button id="header-login-button" class="header-auth-button" type="button">
-        ログイン
-    </button>
-    <button id="header-signup-button" class="header-auth-button" type="button">
-        新規登録
-    </button>
-    <button id="header-logout-button" class="header-auth-button" type="button" hidden>
-        ログアウト
-    </button>
-</div>
+            <div class="header-auth-buttons">
+                <button id="header-login-button" class="header-auth-button" type="button">
+                    ログイン
+                </button>
+                <button id="header-signup-button" class="header-auth-button" type="button">
+                    新規登録
+                </button>
+                <button id="header-logout-button" class="header-auth-button" type="button" hidden>
+                    ログアウト
+                </button>
+            </div>
 
-<div id="auth-modal" class="auth-modal" hidden>
-    <div class="auth-modal-content">
-        <button id="auth-modal-close" class="auth-modal-close" type="button" aria-label="閉じる">×</button>
+            <div id="auth-modal" class="auth-modal" hidden>
+                <div class="auth-modal-content">
+                    <button id="auth-modal-close" class="auth-modal-close" type="button" aria-label="閉じる">×</button>
 
-        <h2 id="auth-modal-title">ログイン</h2>
+                    <h2 id="auth-modal-title">ログイン</h2>
 
-        <label for="auth-email">メールアドレス</label>
-        <input id="auth-email" type="email" autocomplete="email" placeholder="メールアドレス">
+                    <label for="auth-email">メールアドレス</label>
+                    <input id="auth-email" type="email" autocomplete="email" placeholder="メールアドレス">
 
-        <label for="auth-password">パスワード</label>
-        <input id="auth-password" type="password" autocomplete="current-password" placeholder="パスワード">
+                    <label for="auth-password">パスワード</label>
+                    <input id="auth-password" type="password" autocomplete="current-password" placeholder="パスワード">
 
-        <button id="auth-submit-button" class="auth-submit-button" type="button">ログイン</button>
+                    <button id="auth-submit-button" class="auth-submit-button" type="button">ログイン</button>
 
-        <p id="auth-message" role="status" aria-live="polite"></p>
-    </div>
-</div>
+                    <p id="auth-message" role="status" aria-live="polite"></p>
+                </div>
+            </div>
 
 
             <div class="cube-icon" aria-hidden="true">🧩</div>
         </header>
 
 
-    
-            <div id="auth-user" hidden>
-                <p id="auth-status">ログインしていません</p>
-                <button id="sign-out-button" type="button">ログアウト</button>
+
+        <div id="auth-user" hidden>
+            <p id="auth-status">ログインしていません</p>
+            <button id="sign-out-button" type="button">ログアウト</button>
+        </div>
+
+        <p id="auth-message" role="status" aria-live="polite"></p>
+        </section>
+
+
+        <section class="scramble-card">
+            <div class="scramble-header">
+                <div>
+                    <div class="timer-label">SCRAMBLE</div>
+                    <h2>20手スクランブル</h2>
+                </div>
+                <span id="scrambleMoveCount" class="scramble-count">20 MOVES</span>
             </div>
 
-            <p id="auth-message" role="status" aria-live="polite"></p>
+            <div id="scrambleText" class="scramble-text" aria-live="polite">
+                スクランブルを生成しています...
+            </div>
+
+            <div class="scramble-actions">
+                <button id="newScrambleButton" class="scramble-button" type="button">
+                    ↻ 新しいスクランブル
+                </button>
+                <button id="copyScrambleButton" class="scramble-button secondary" type="button">
+                    コピー
+                </button>
+
+                <select id="scrambleViewSelect" class="scramble-view-select" aria-label="スクランブルの表示方法">
+                    <option value="net">展開図</option>
+                    <option value="preview">プレビュー</option>
+                </select>
+
+            </div>
+
+            <div class="cube-net-section">
+                <div class="timer-label">CUBE STATE</div>
+                <p class="cube-net-hint">スクランブル後のキューブの状態</p>
+
+                <div id="cubeNet" class="cube-net" aria-label="キューブの6面の展開図">
+                    <div class="cube-face face-u" data-face="U" aria-label="上面"></div>
+                    <div class="cube-face face-l" data-face="L" aria-label="左面"></div>
+                    <div class="cube-face face-f" data-face="F" aria-label="前面"></div>
+                    <div class="cube-face face-r" data-face="R" aria-label="右面"></div>
+                    <div class="cube-face face-b" data-face="B" aria-label="後面"></div>
+                    <div class="cube-face face-d" data-face="D" aria-label="下面"></div>
+                </div>
+
+                <div id="cubePreviewView" class="cube-preview-view" hidden>
+                    <div class="timer-label">3D PREVIEW</div>
+                    <p class="cube-net-hint">スクランブルを1手ずつ再生します</p>
+
+                    <div id="cube3DScene" class="cube-3d-scene" aria-label="スクランブルの3Dプレビュー">
+                        <div id="cube3D" class="cube-3d"></div>
+                    </div>
+
+                    <div class="cube-animation-controls">
+                        <button id="playScrambleButton" class="scramble-button" type="button">
+                            ▶ 再生
+                        </button>
+                        <button id="pauseScrambleButton" class="scramble-button secondary" type="button" disabled>
+                            Ⅱ 一時停止
+                        </button>
+                        <button id="resetScrambleButton" class="scramble-button secondary" type="button">
+                            ↺ 最初から
+                        </button>
+                    </div>
+
+                    <p id="scrambleAnimationStatus" class="cube-net-hint" aria-live="polite">再生待機中</p>
+                </div>
+
+            </div>
         </section>
+
 
         <section class="timer-card">
             <div class="timer-label">CURRENT SOLVE</div>

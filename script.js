@@ -195,13 +195,15 @@ function renderHistory() {
         deleteButton.title = "この記録を削除";
         deleteButton.setAttribute("aria-label", `${formatTime(solve.time)}秒の記録を削除`);
 
-       deleteButton.addEventListener("click", async () => {
-            const confirmed = confirm(
-                `${formatTime(solve.time)}秒の記録を削除しますか？\nこの操作は取り消せません。`
-            );
+        deleteButton.addEventListener("click", async (event) => {
+            // Shiftキーを押していなければ、通常の確認を表示
+            if (!event.shiftKey) {
+                const confirmed = confirm(
+                    `${formatTime(solve.time)}秒の記録を削除しますか？\nこの操作は取り消せません。`
+                );
 
-            if (!confirmed) return;
-
+                if (!confirmed) return;
+            }
             // 元の記録の位置を特定して削除する
             // ログイン中で、クラウドに保存された記録なら先に削除
             if (solve.id !== undefined && solve.id !== null) {
@@ -559,3 +561,257 @@ headerLogoutButton.addEventListener("click", async () => {
         headerLogoutButton.disabled = false;
     }
 });
+
+
+/* ===== CubeTracker：20手スクランブル生成 ===== */
+
+const scrambleFaces = ["U", "D", "L", "R", "F", "B"];
+
+const scrambleColors = {
+    U: "#f5f5f5",
+    D: "#ffd500",
+    F: "#159447",
+    B: "#2864d7",
+    R: "#e53935",
+    L: "#ff851b"
+};
+
+// 各面のステッカーを3D座標で作成する
+function createCubeStickerState() {
+    const stickers = [];
+
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 3; col++) {
+            const x = col - 1;
+            const y = 1 - row;
+            const z = col - 1;
+
+            stickers.push(
+                { face: "U", color: "U", pos: { x, y: 1, z: row - 1 }, normal: { x: 0, y: 1, z: 0 } },
+                { face: "D", color: "D", pos: { x, y: -1, z: 1 - row }, normal: { x: 0, y: -1, z: 0 } },
+                { face: "F", color: "F", pos: { x, y, z: 1 }, normal: { x: 0, y: 0, z: 1 } },
+                { face: "B", color: "B", pos: { x: -x, y, z: -1 }, normal: { x: 0, y: 0, z: -1 } },
+                { face: "R", color: "R", pos: { x: 1, y, z: -z }, normal: { x: 1, y: 0, z: 0 } },
+                { face: "L", color: "L", pos: { x: -1, y, z }, normal: { x: -1, y: 0, z: 0 } }
+            );
+        }
+    }
+
+    return stickers;
+}
+
+// ベクトルを指定軸の周りに90度回転する
+function rotateCubeVector(vector, axis, direction) {
+    const { x, y, z } = vector;
+
+    if (axis === "x") {
+        return direction === 1
+            ? { x, y: -z, z: y }
+            : { x, y: z, z: -y };
+    }
+
+    if (axis === "y") {
+        return direction === 1
+            ? { x: z, y, z: -x }
+            : { x: -z, y, z: x };
+    }
+
+    return direction === 1
+        ? { x: -y, y: x, z }
+        : { x: y, y: -x, z };
+}
+
+// R、U'、F2などの操作をキューブの状態に適用する
+function applyCubeMove(stickers, move) {
+    const face = move[0];
+
+    const moveInfo = {
+        R: { axis: "x", layer: 1, sign: 1 },
+        L: { axis: "x", layer: -1, sign: -1 },
+        U: { axis: "y", layer: 1, sign: 1 },
+        D: { axis: "y", layer: -1, sign: -1 },
+        F: { axis: "z", layer: 1, sign: 1 },
+        B: { axis: "z", layer: -1, sign: -1 }
+    };
+
+    const { axis, layer, sign } = moveInfo[face];
+
+    let direction = -sign;
+
+    if (move.endsWith("'")) {
+        direction *= -1;
+    }
+
+    const turns = move.endsWith("2") ? 2 : 1;
+
+    for (let turn = 0; turn < turns; turn++) {
+        for (const sticker of stickers) {
+            if (sticker.pos[axis] === layer) {
+                sticker.pos = rotateCubeVector(
+                    sticker.pos,
+                    axis,
+                    direction
+                );
+
+                sticker.normal = rotateCubeVector(
+                    sticker.normal,
+                    axis,
+                    direction
+                );
+            }
+        }
+    }
+}
+
+// ステッカーの現在位置から、面内のマス番号を計算する
+
+function getCubeStickerIndex(sticker) {
+    const { x, y, z } = sticker.pos;
+    const { x: nx, y: ny, z: nz } = sticker.normal;
+
+    let row;
+    let col;
+
+    if (ny === 1) {
+        // U面：前側が手前になる向き
+        row = z + 1;
+        col = x + 1;
+    } else if (ny === -1) {
+        // D面
+        row = 1 - z;
+        col = x + 1;
+    } else if (nz === 1) {
+        // F面
+        row = 1 - y;
+        col = x + 1;
+    } else if (nz === -1) {
+        // B面
+        row = 1 - y;
+        col = 1 - x;
+    } else if (nx === 1) {
+        // R面
+        row = 1 - y;
+        col = 1 - z;
+    } else if (nx === -1) {
+        // L面
+        row = 1 - y;
+        col = z + 1;
+    }
+
+    return row * 3 + col;
+}
+
+
+// 6面の展開図を更新する
+
+function getCubeFaceFromNormal(normal) {
+    if (normal.y === 1) return "U";
+    if (normal.y === -1) return "D";
+    if (normal.z === 1) return "F";
+    if (normal.z === -1) return "B";
+    if (normal.x === 1) return "R";
+    if (normal.x === -1) return "L";
+
+    return null;
+}
+
+// 6面の展開図を更新する
+function renderCubeNet(stickers) {
+    const cubeNet = document.getElementById("cubeNet");
+    if (!cubeNet) return;
+
+    const faces = cubeNet.querySelectorAll(".cube-face");
+
+    for (const faceElement of faces) {
+        const face = faceElement.dataset.face;
+
+        // ステッカーの「現在向いている面」で分類する
+        const faceStickers = stickers
+            .filter(sticker =>
+                getCubeFaceFromNormal(sticker.normal) === face
+            )
+            .sort((a, b) =>
+                getCubeStickerIndex(a) - getCubeStickerIndex(b)
+            );
+
+        faceElement.replaceChildren();
+
+        for (const sticker of faceStickers) {
+            const square = document.createElement("div");
+            square.className = "cube-sticker";
+            square.style.backgroundColor =
+                scrambleColors[sticker.color];
+
+            faceElement.appendChild(square);
+        }
+    }
+}
+
+
+// 同じ面が連続しない20手のスクランブルを生成する
+function generateCubeScramble() {
+    const moves = [];
+    let previousFace = "";
+
+    while (moves.length < 20) {
+        const face =
+            scrambleFaces[Math.floor(Math.random() * scrambleFaces.length)];
+
+        if (face === previousFace) continue;
+
+        const suffixes = ["", "'", "2"];
+        const suffix =
+            suffixes[Math.floor(Math.random() * suffixes.length)];
+
+        moves.push(face + suffix);
+        previousFace = face;
+    }
+
+    return moves;
+}
+
+// スクランブル文字列と展開図を更新する
+function updateCubeScramble() {
+    const moves = generateCubeScramble();
+
+    document.getElementById("scrambleText").textContent =
+        moves.join(" ");
+
+    document.getElementById("scrambleMoveCount").textContent =
+        `${moves.length} MOVES`;
+
+    const stickers = createCubeStickerState();
+
+    for (const move of moves) {
+        applyCubeMove(stickers, move);
+    }
+
+    renderCubeNet(stickers);
+}
+
+// スクランブル再生成ボタン
+document.getElementById("newScrambleButton")
+    .addEventListener("click", updateCubeScramble);
+
+// スクランブルをクリップボードにコピー
+document.getElementById("copyScrambleButton")
+    .addEventListener("click", async () => {
+        const text = document.getElementById("scrambleText").textContent;
+        const button = document.getElementById("copyScrambleButton");
+
+        try {
+            await navigator.clipboard.writeText(text);
+
+            button.textContent = "コピーしました！";
+
+            setTimeout(() => {
+                button.textContent = "コピー";
+            }, 1500);
+        } catch (error) {
+            console.error("コピーに失敗しました:", error);
+            alert("コピーできませんでした。スクランブルを手動でコピーしてください。");
+        }
+    });
+
+// ページを開いたときに最初のスクランブルを生成
+updateCubeScramble();

@@ -555,3 +555,293 @@ footer {
 [hidden] {
     display: none !important;
 }
+
+/* ===== スクランブルカード ===== */
+.scramble-card {
+    margin-bottom: 20px;
+    padding: 24px;
+    background: #171b28;
+    border: 1px solid #2b3245;
+    border-radius: 20px;
+}
+
+.scramble-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.scramble-header h2 {
+    margin: 8px 0 0;
+    font-size: 1.25rem;
+}
+
+.scramble-count {
+    color: #aebcff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.scramble-text {
+    margin: 20px 0;
+    padding: 16px;
+    background: #10131c;
+    border: 1px solid #30384c;
+    border-radius: 12px;
+    color: #f3f5ff;
+    font-size: 1.05rem;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+    min-height: 60px;
+}
+
+.scramble-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.scramble-button {
+    padding: 11px 16px;
+    border: 0;
+    border-radius: 10px;
+    background: #7588ff;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.scramble-button.secondary {
+    background: #2a3041;
+    border: 1px solid #414a60;
+}
+
+.scramble-button:hover {
+    filter: brightness(1.12);
+}
+
+.scramble-button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+}
+
+/* ===== キューブの展開図 ===== */
+.cube-net-section {
+    margin-top: 26px;
+}
+
+.cube-net-hint {
+    margin: 8px 0 16px;
+    color: #a8afc2;
+    font-size: 0.9rem;
+}
+
+.cube-net {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, auto);
+    gap: 5px;
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+.cube-face {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+    min-width: 0;
+    aspect-ratio: 1;
+    padding: 3px;
+    background: #0d1018;
+    border-radius: 5px;
+}
+
+.face-u {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.face-l {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.face-f {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.face-r {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.face-b {
+    grid-column: 4;
+    grid-row: 2;
+}
+
+.face-d {
+    grid-column: 2;
+    grid-row: 3;
+}
+
+.cube-sticker {
+    min-width: 0;
+    aspect-ratio: 1;
+    border: 1px solid rgb(0 0 0 / 25%);
+    border-radius: 3px;
+    background: #30384a;
+}
+
+@media (max-width: 480px) {
+    .scramble-card {
+        padding: 16px;
+    }
+
+    .scramble-text {
+        font-size: 0.95rem;
+        padding: 12px;
+    }
+
+    .cube-net {
+        gap: 3px;
+    }
+
+    .cube-face {
+        gap: 2px;
+        padding: 2px;
+    }
+}
+
+/* ===== CubeTracker：表示切り替え＆3Dプレビュー ===== */
+
+/* スクランブル操作ボタンとプルダウン */
+.scramble-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.scramble-view-select {
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1f2937;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 3Dプレビュー全体 */
+.cube-preview-view {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.cube-preview-view[hidden] {
+    display: none !important;
+}
+
+/* 3Dキューブの表示領域 */
+.cube-3d-scene {
+    width: 100%;
+    min-height: 250px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    perspective: 800px;
+    perspective-origin: 50% 45%;
+}
+
+/* 3Dキューブ本体 */
+.cube-3d {
+    --cube-size: 150px;
+    position: relative;
+    width: var(--cube-size);
+    height: var(--cube-size);
+    transform-style: preserve-3d;
+    transform: rotateX(-25deg) rotateY(-35deg);
+}
+
+/* キューブの各面 */
+.cube-3d-face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3px;
+    padding: 4px;
+    box-sizing: border-box;
+    border: 2px solid #222222;
+    border-radius: 4px;
+    backface-visibility: hidden;
+}
+
+/* 各ステッカー */
+.cube-3d-sticker {
+    min-width: 0;
+    min-height: 0;
+    border: 1px solid rgb(0 0 0 / 35%);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* 立体キューブの面の配置 */
+.cube-3d-face.face-f {
+    transform: translateZ(calc(var(--cube-size) / 2));
+}
+
+.cube-3d-face.face-b {
+    transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2));
+}
+
+.cube-3d-face.face-r {
+    transform: rotateY(90deg) translateZ(calc(var(--cube-size) / 2));
+}
+
+.cube-3d-face.face-l {
+    transform: rotateY(-90deg) translateZ(calc(var(--cube-size) / 2));
+}
+
+.cube-3d-face.face-u {
+    transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2));
+}
+
+.cube-3d-face.face-d {
+    transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2));
+}
+
+/* 再生・一時停止などの操作 */
+.cube-animation-controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.cube-animation-controls button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .scramble-view-select {
+        flex: 1;
+    }
+
+    .cube-3d {
+        --cube-size: 120px;
+    }
+
+    .cube-3d-scene {
+        min-height: 220px;
+    }
+}
