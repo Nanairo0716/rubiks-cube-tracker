@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10131c">
+    <title>Rubik's Cube Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app">
+
+        <header class="header">
+            <div>
+                <p class="eyebrow">SPEEDCUBING TRACKER</p>
+                <h1>Cube<span>Tracker</span></h1>
+            </div>
+
+
+<div class="header-auth-buttons">
+    <button id="header-login-button" class="header-auth-button" type="button">
+        ログイン
+    </button>
+    <button id="header-signup-button" class="header-auth-button" type="button">
+        新規登録
+    </button>
+    <button id="header-logout-button" class="header-auth-button" type="button" hidden>
+        ログアウト
+    </button>
+</div>
+
+<div id="auth-modal" class="auth-modal" hidden>
+    <div class="auth-modal-content">
+        <button id="auth-modal-close" class="auth-modal-close" type="button" aria-label="閉じる">×</button>
+
+        <h2 id="auth-modal-title">ログイン</h2>
+
+        <label for="auth-email">メールアドレス</label>
+        <input id="auth-email" type="email" autocomplete="email" placeholder="メールアドレス">
+
+        <label for="auth-password">パスワード</label>
+        <input id="auth-password" type="password" autocomplete="current-password" placeholder="パスワード">
+
+        <button id="auth-submit-button" class="auth-submit-button" type="button">ログイン</button>
+
+        <p id="auth-message" role="status" aria-live="polite"></p>
+    </div>
+</div>
+
+
+            <div class="cube-icon" aria-hidden="true">🧩</div>
+        </header>
+
+
+    
+            <div id="auth-user" hidden>
+                <p id="auth-status">ログインしていません</p>
+                <button id="sign-out-button" type="button">ログアウト</button>
+            </div>
+
+            <p id="auth-message" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="timer-card">
+            <div class="timer-label">CURRENT SOLVE</div>
+            <div id="timer" class="timer" aria-live="off">0.00</div>
+            <div id="status" class="status">READY TO SOLVE</div>
+
+            <button id="timerButton" class="timer-button" type="button">
+                START SOLVE
+            </button>
+
+            <p class="hint">Space キー またはボタンで操作</p>
+        </section>
+
+        <section class="stats">
+            <article class="stat-card">
+                <span class="stat-label">PERSONAL BEST</span>
+                <strong id="pb">--.--</strong>
+                <span class="stat-unit">秒</span>
+            </article>
+            <article class="stat-card">
+                <span class="stat-label">SOLVES</span>
+                <strong id="solveCount">0</strong>
+                <span class="stat-unit">回</span>
+            </article>
+        </section>
+
+        <section class="average-stats">
+            <div class="section-heading">
+                <h2>Average Times</h2>
+                <span class="coming-soon">STATISTICS</span>
+            </div>
+
+            <div class="average-grid">
+                <article class="average-card">
+                    <span class="average-label">Mo3</span>
+                    <strong id="mo3">--.--</strong>
+                    <span class="average-unit">秒</span>
+                </article>
+
+                <article class="average-card">
+                    <span class="average-label">Ao5</span>
+                    <strong id="ao5">--.--</strong>
+                    <span class="average-unit">秒</span>
+                </article>
+
+                <article class="average-card">
+                    <span class="average-label">Ao12</span>
+                    <strong id="ao12">--.--</strong>
+                    <span class="average-unit">秒</span>
+                </article>
+
+                <article class="average-card">
+                    <span class="average-label">Ao50</span>
+                    <strong id="ao50">--.--</strong>
+                    <span class="average-unit">秒</span>
+                </article>
+
+                <article class="average-card">
+                    <span class="average-label">Ao100</span>
+                    <strong id="ao100">--.--</strong>
+                    <span class="average-unit">秒</span>
+                </article>
+            </div>
+        </section>
+
+
+        <section class="history-card">
+            <div class="section-heading">
+                <h2>Recent Solves</h2>
+                <span class="coming-soon">HISTORY</span>
+            </div>
+            <p class="empty-message">まだ記録がありません。最初の1回を解こう！</p>
+            <ol id="history" class="history"></ol>
+        </section>
+
+        <section class="ranking-card">
+            <div class="section-heading">
+                <h2>All-Time Ranking</h2>
+                <span class="coming-soon">LEADERBOARD</span>
+            </div>
+
+            <p id="rankingEmpty" class="empty-message">
+                まだランキングに記録がありません。
+            </p>
+
+            <ol id="rankingList" class="ranking-list"></ol>
+        </section>
+
+        <footer>YOUR CUBE JOURNEY STARTS HERE.</footer>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
