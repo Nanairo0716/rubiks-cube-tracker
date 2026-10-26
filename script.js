@@ -869,12 +869,16 @@ function updateCubeRotationArrow(move) {
 
     if (!arrow || !arrowPath) return;
 
+
     if (!move) {
         arrow.hidden = true;
+        arrow.style.setProperty("display", "none", "important");
         return;
     }
 
     arrow.hidden = false;
+    arrow.style.setProperty("display", "block", "important");
+
 
     // 時計回り・反時計回り・180度回転を判定
     const isDoubleTurn = move.endsWith("2");
