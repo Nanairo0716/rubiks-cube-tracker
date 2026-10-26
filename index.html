@@ -109,9 +109,23 @@
                     <div class="timer-label">3D PREVIEW</div>
                     <p class="cube-net-hint">スクランブルを1手ずつ再生します</p>
 
+
                     <div id="cube3DScene" class="cube-3d-scene" aria-label="スクランブルの3Dプレビュー">
                         <div id="cube3D" class="cube-3d"></div>
+                        <svg id="cubeRotationArrow" class="cube-rotation-arrow" viewBox="0 0 120 90" aria-hidden="true"
+                            hidden>
+                            <defs>
+                                <marker id="cubeArrowHead" markerWidth="8" markerHeight="8" refX="5" refY="4"
+                                    orient="auto">
+                                    <path d="M0,0 L8,4 L0,8 Z" fill="#050505" />
+                                </marker>
+                            </defs>
+                            <path id="cubeRotationArrowPath" d="M15 55 C30 85, 75 85, 95 40" fill="none"
+                                stroke="#050505" stroke-width="7" stroke-linecap="round"
+                                marker-end="url(#cubeArrowHead)" />
+                        </svg>
                     </div>
+
 
 
                     <div class="cube-animation-controls">
