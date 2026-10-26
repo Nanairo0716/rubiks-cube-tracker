@@ -113,17 +113,38 @@
                         <div id="cube3D" class="cube-3d"></div>
                     </div>
 
+
                     <div class="cube-animation-controls">
+                        <button id="prevScrambleMoveButton" class="scramble-button secondary" type="button">
+                            ◀ 前の手
+                        </button>
                         <button id="playScrambleButton" class="scramble-button" type="button">
                             ▶ 再生
                         </button>
                         <button id="pauseScrambleButton" class="scramble-button secondary" type="button" disabled>
                             Ⅱ 一時停止
                         </button>
+                        <button id="nextScrambleMoveButton" class="scramble-button secondary" type="button">
+                            次の手 ▶
+                        </button>
                         <button id="resetScrambleButton" class="scramble-button secondary" type="button">
                             ↺ 最初から
                         </button>
                     </div>
+
+                    <div class="cube-speed-control">
+                        <label for="scrambleSpeedSelect">再生速度：</label>
+                        <select id="scrambleSpeedSelect" class="scramble-view-select">
+                            <option value="500">0.5秒／手</option>
+                            <option value="700">0.7秒／手</option>
+                            <option value="1000">1.0秒／手</option>
+                            <option value="1500" selected>1.5秒／手</option>
+                            <option value="2000">2.0秒／手</option>
+                            <option value="3000">3.0秒／手</option>
+                        </select>
+                    </div>
+
+
 
                     <p id="scrambleAnimationStatus" class="cube-net-hint" aria-live="polite">再生待機中</p>
                 </div>

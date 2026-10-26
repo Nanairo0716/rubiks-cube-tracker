@@ -771,8 +771,11 @@ function generateCubeScramble() {
 }
 
 // スクランブル文字列と展開図を更新する
+let currentScrambleMoves = [];
+
 function updateCubeScramble() {
     const moves = generateCubeScramble();
+    currentScrambleMoves = [...moves];
 
     document.getElementById("scrambleText").textContent =
         moves.join(" ");
@@ -815,3 +818,207 @@ document.getElementById("copyScrambleButton")
 
 // ページを開いたときに最初のスクランブルを生成
 updateCubeScramble();
+
+/* ===== CubeTracker：3Dプレビュー ===== */
+
+// 表示モードを切り替える
+const scrambleViewSelect = document.getElementById("scrambleViewSelect");
+const cubeNetSection = document.querySelector(".cube-net-section");
+const cubeNet = document.getElementById("cubeNet");
+const cubeNetLabel = cubeNetSection.querySelector(".timer-label");
+const cubeNetHint = cubeNetSection.querySelector(".cube-net-hint");
+const cubePreviewView = document.getElementById("cubePreviewView");
+
+scrambleViewSelect.addEventListener("change", () => {
+    const isPreview = scrambleViewSelect.value === "preview";
+
+    // 親要素ではなく、展開図とその見出しだけを隠す
+    cubeNet.hidden = isPreview;
+    cubeNetLabel.hidden = isPreview;
+    cubeNetHint.hidden = isPreview;
+
+    // 3Dプレビューの表示を切り替える
+    cubePreviewView.hidden = !isPreview;
+
+    if (isPreview) {
+        renderCube3D(createCubeStickerState());
+    }
+});
+
+// ステッカーの現在の向きから面を取得する
+function getCurrentCubeFace(sticker) {
+    return getCubeFaceFromNormal(sticker.normal);
+}
+
+/* ===== 3Dプレビュー用のキューブ状態 ===== */
+
+// 現在表示しているキューブの状態
+let previewCubeStickers = createCubeStickerState();
+
+// 現在の状態を3Dキューブに反映する
+function updateCube3DPreview() {
+    renderCube3D(previewCubeStickers);
+}
+
+// スクランブル開始前の状態に戻す
+function resetCube3DPreview() {
+    previewCubeStickers = createCubeStickerState();
+    updateCube3DPreview();
+}
+
+/* ===== 3Dプレビュー：指定した手数まで再現 ===== */
+
+function showScrambleAtStep(step) {
+    stopScrambleAnimation();
+
+    scrambleAnimationIndex = Math.max(
+        0,
+        Math.min(step, currentScrambleMoves.length)
+    );
+
+    previewCubeStickers = createCubeStickerState();
+
+    for (let i = 0; i < scrambleAnimationIndex; i++) {
+        applyCubeMove(previewCubeStickers, currentScrambleMoves[i]);
+    }
+
+    updateCube3DPreview();
+
+    if (scrambleAnimationIndex === 0) {
+        scrambleAnimationStatus.textContent = "再生待機中（0手）";
+    } else {
+        scrambleAnimationStatus.textContent =
+            `${scrambleAnimationIndex}/${currentScrambleMoves.length}手`;
+    }
+}
+
+
+// 現在のキューブ状態から3Dキューブを描画する
+function renderCube3D(stickers) {
+    const cube = document.getElementById("cube3D");
+    if (!cube) return;
+
+    const faces = ["U", "L", "F", "R", "B", "D"];
+
+    cube.replaceChildren();
+
+    for (const face of faces) {
+        const faceElement = document.createElement("div");
+
+        faceElement.className = `cube-3d-face face-${face.toLowerCase()}`;
+
+        const faceStickers = stickers
+            .filter(sticker => getCurrentCubeFace(sticker) === face)
+            .sort((a, b) =>
+                getCubeStickerIndex(a) - getCubeStickerIndex(b)
+            );
+
+        for (const sticker of faceStickers) {
+            const square = document.createElement("div");
+            square.className = "cube-3d-sticker";
+            square.style.backgroundColor = scrambleColors[sticker.color];
+
+            faceElement.appendChild(square);
+        }
+
+        cube.appendChild(faceElement);
+    }
+}
+
+
+/* ===== CubeTracker：スクランブル再生コントロール ===== */
+
+let scrambleAnimationIndex = 0;
+let scrambleAnimationTimer = null;
+let scrambleAnimationPlaying = false;
+
+const playScrambleButton = document.getElementById("playScrambleButton");
+const pauseScrambleButton = document.getElementById("pauseScrambleButton");
+const resetScrambleButton = document.getElementById("resetScrambleButton");
+const scrambleSpeedSelect = document.getElementById("scrambleSpeedSelect");
+const prevScrambleMoveButton = document.getElementById("prevScrambleMoveButton");
+const nextScrambleMoveButton = document.getElementById("nextScrambleMoveButton");
+const scrambleAnimationStatus = document.getElementById("scrambleAnimationStatus");
+
+// 再生ボタンの状態を更新する
+function updateScrambleAnimationButtons() {
+    playScrambleButton.disabled = scrambleAnimationPlaying;
+    pauseScrambleButton.disabled = !scrambleAnimationPlaying;
+}
+
+// 再生を停止する
+function stopScrambleAnimation() {
+    if (scrambleAnimationTimer !== null) {
+        clearTimeout(scrambleAnimationTimer);
+        scrambleAnimationTimer = null;
+    }
+
+    scrambleAnimationPlaying = false;
+    updateScrambleAnimationButtons();
+}
+
+// スクランブル再生の進行を管理する
+function playNextScrambleMove() {
+    if (!scrambleAnimationPlaying) return;
+
+    if (scrambleAnimationIndex >= currentScrambleMoves.length) {
+        stopScrambleAnimation();
+        scrambleAnimationStatus.textContent = "20手の再生が完了しました！";
+        return;
+    }
+
+    const move = currentScrambleMoves[scrambleAnimationIndex];
+    
+    applyCubeMove(previewCubeStickers, move);
+    updateCube3DPreview();
+
+
+    scrambleAnimationStatus.textContent =
+        `${scrambleAnimationIndex + 1}/20手目：${move}`;
+
+    scrambleAnimationIndex++;
+
+    scrambleAnimationTimer = setTimeout(() => {
+        scrambleAnimationTimer = null;
+        playNextScrambleMove();
+    }, Number(scrambleSpeedSelect.value));
+}
+
+// 再生
+playScrambleButton.addEventListener("click", () => {
+    if (scrambleAnimationPlaying) return;
+
+    if (scrambleAnimationIndex >= currentScrambleMoves.length) {
+        scrambleAnimationIndex = 0;
+    }
+
+    scrambleAnimationPlaying = true;
+    updateScrambleAnimationButtons();
+    playNextScrambleMove();
+});
+
+/* ===== 3Dプレビュー：前の手・次の手 ===== */
+
+prevScrambleMoveButton.addEventListener("click", () => {
+    showScrambleAtStep(scrambleAnimationIndex - 1);
+});
+
+nextScrambleMoveButton.addEventListener("click", () => {
+    showScrambleAtStep(scrambleAnimationIndex + 1);
+});
+
+
+// 一時停止
+pauseScrambleButton.addEventListener("click", () => {
+    stopScrambleAnimation();
+    scrambleAnimationStatus.textContent =
+        `一時停止：${scrambleAnimationIndex}/20手`;
+});
+
+// 最初から
+resetScrambleButton.addEventListener("click", () => {
+    stopScrambleAnimation();
+    scrambleAnimationIndex = 0;
+    scrambleAnimationStatus.textContent = "再生待機中";
+    resetCube3DPreview();
+});
