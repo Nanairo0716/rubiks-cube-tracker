@@ -904,3 +904,25 @@ footer {
   outline: 2px solid #7588ff;
   outline-offset: 3px;
 }
+
+/* ===== 3Dキューブの回転方向矢印 ===== */
+.cube-3d-scene {
+    position: relative;
+}
+
+.cube-rotation-arrow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 120px;
+    height: 90px;
+    overflow: visible;
+    transform: translate(10px, 15px);
+    pointer-events: none;
+    z-index: 5;
+    filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.65));
+}
+
+.cube-rotation-arrow[hidden] {
+    display: none !important;
+}

@@ -776,6 +776,7 @@ let currentScrambleMoves = [];
 function updateCubeScramble() {
     const moves = generateCubeScramble();
     currentScrambleMoves = [...moves];
+    updateCubeRotationArrow(null);
 
     document.getElementById("scrambleText").textContent =
         moves.join(" ");
@@ -860,9 +861,43 @@ function updateCube3DPreview() {
     renderCube3D(previewCubeStickers);
 }
 
+/* ===== 回転方向矢印の表示 ===== */
+
+function updateCubeRotationArrow(move) {
+    const arrow = document.getElementById("cubeRotationArrow");
+    const arrowPath = document.getElementById("cubeRotationArrowPath");
+
+    if (!arrow || !arrowPath) return;
+
+    if (!move) {
+        arrow.hidden = true;
+        return;
+    }
+
+    arrow.hidden = false;
+
+    // 時計回り・反時計回り・180度回転を判定
+    const isDoubleTurn = move.endsWith("2");
+    const isPrimeTurn = move.endsWith("'");
+
+    let path;
+
+    if (isDoubleTurn) {
+        path = "M15 55 C30 85, 75 85, 95 40";
+    } else if (isPrimeTurn) {
+        path = "M95 40 C75 5, 30 5, 15 55";
+    } else {
+        path = "M15 55 C30 85, 75 85, 95 40";
+    }
+
+    arrowPath.setAttribute("d", path);
+}
+
+
 // スクランブル開始前の状態に戻す
 function resetCube3DPreview() {
     previewCubeStickers = createCubeStickerState();
+    updateCubeRotationArrow(null);
     updateCube3DPreview();
 }
 
@@ -883,6 +918,11 @@ function showScrambleAtStep(step) {
     }
 
     updateCube3DPreview();
+    updateCubeRotationArrow(
+        scrambleAnimationIndex > 0
+            ? currentScrambleMoves[scrambleAnimationIndex - 1]
+            : null
+    );
 
     if (scrambleAnimationIndex === 0) {
         scrambleAnimationStatus.textContent = "再生待機中（0手）";
@@ -968,10 +1008,10 @@ function playNextScrambleMove() {
     }
 
     const move = currentScrambleMoves[scrambleAnimationIndex];
-    
+
     applyCubeMove(previewCubeStickers, move);
     updateCube3DPreview();
-
+    updateCubeRotationArrow(move);
 
     scrambleAnimationStatus.textContent =
         `${scrambleAnimationIndex + 1}/20手目：${move}`;
